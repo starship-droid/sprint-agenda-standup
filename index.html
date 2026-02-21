@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STAND UP // MID SPRINT</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=IBM+Plex+Mono:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0a0b0d;
+    --surface: #0f1114;
+    --surface2: #161a1e;
+    --amber: #f5a623;
+    --amber-dim: #b87a1a;
+    --amber-glow: rgba(245,166,35,0.15);
+    --blue: #4da6ff;
+    --blue-glow: rgba(77,166,255,0.15);
+    --red: #ff3b3b;
+    --red-glow: rgba(255,59,59,0.15);
+    --green: #39d353;
+    --green-glow: rgba(57,211,83,0.1);
+    --text: #c8cdd4;
+    --text-dim: #5a6270;
+    --border: rgba(245,166,35,0.15);
+    --border-bright: rgba(245,166,35,0.4);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events: none; z-index: 1000;
+  }
+
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(245,166,35,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(245,166,35,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .app {
+    position: relative; z-index: 1;
+    max-width: 860px; margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 40px; padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-tag {
+    font-family: 'Share Tech Mono', monospace; font-size: 10px;
+    letter-spacing: 0.3em; color: var(--amber); opacity: 0.7; margin-bottom: 6px;
+  }
+
+  h1 { font-family: 'Orbitron', monospace; font-size: clamp(22px,5vw,34px); font-weight: 900; color: #fff; letter-spacing: 0.05em; line-height: 1; }
+  h1 span { color: var(--amber); }
+
+  .status-dot {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Share Tech Mono', monospace; font-size: 11px;
+    letter-spacing: 0.15em; color: var(--text-dim); margin-top: 12px;
+  }
+
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 8px var(--green);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .participant-count {
+    font-family: 'Orbitron', monospace; font-size: 28px; font-weight: 700;
+    color: var(--amber); text-align: right;
+  }
+  .participant-count span {
+    font-size: 11px; font-family: 'Share Tech Mono', monospace;
+    color: var(--text-dim); display: block; letter-spacing: 0.2em; margin-top: 2px;
+  }
+
+  /* JOIN */
+  .join-section {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 20px 24px; margin-bottom: 32px; position: relative;
+    clip-path: polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%);
+  }
+  .join-section::before {
+    content: 'IDENTIFY';
+    position: absolute; top: -1px; left: 20px;
+    font-family: 'Share Tech Mono', monospace; font-size: 9px;
+    letter-spacing: 0.3em; color: var(--amber);
+    background: var(--surface); padding: 0 8px; transform: translateY(-50%);
+  }
+
+  .join-row { display: flex; gap: 12px; align-items: stretch; }
+
+  input[type="text"] {
+    flex: 1; background: var(--bg); border: 1px solid var(--border);
+    color: #fff; font-family: 'IBM Plex Mono', monospace; font-size: 14px;
+    padding: 12px 16px; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s; letter-spacing: 0.05em;
+  }
+  input[type="text"]::placeholder { color: var(--text-dim); font-style: italic; }
+  input[type="text"]:focus {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 2px var(--amber-glow), inset 0 0 20px rgba(245,166,35,0.05);
+  }
+
+  .timer-config {
+    display: flex; align-items: center; gap: 12px;
+    margin-top: 14px; padding-top: 14px;
+    border-top: 1px solid var(--border); flex-wrap: wrap;
+  }
+  .timer-config label {
+    font-family: 'Share Tech Mono', monospace; font-size: 10px;
+    letter-spacing: 0.2em; color: var(--text-dim);
+  }
+  .timer-stepper { display: flex; align-items: center; border: 1px solid var(--border); }
+  .timer-stepper button {
+    background: var(--surface2); border: none; color: var(--amber);
+    width: 30px; height: 30px; cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .timer-stepper button:hover { background: var(--amber-glow); }
+  .timer-stepper .val {
+    width: 50px; text-align: center; font-family: 'Orbitron', monospace;
+    font-size: 13px; color: #fff; background: var(--bg); height: 30px;
+    line-height: 30px; border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  }
+
+  /* BTN */
+  .btn {
+    font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.15em; padding: 12px 24px; border: none; cursor: pointer;
+    transition: all 0.15s; white-space: nowrap; position: relative; overflow: hidden;
+  }
+  .btn::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,0.1); opacity:0; transition:opacity 0.15s; }
+  .btn:hover::after { opacity:1; }
+  .btn:active { transform:scale(0.97); }
+  .btn-amber { background: var(--amber); color: #000; }
+  .btn-amber:hover { box-shadow: 0 0 20px var(--amber-glow); }
+  .btn-blue { background: var(--blue); color: #000; }
+  .btn-blue:hover { box-shadow: 0 0 20px var(--blue-glow); }
+  .btn-ghost { background: transparent; color: var(--amber); border: 1px solid var(--border-bright); }
+  .btn-ghost:hover { border-color: var(--amber); box-shadow: 0 0 12px var(--amber-glow); }
+  .btn-green { background: var(--green); color: #000; }
+  .btn-green:hover { box-shadow: 0 0 20px var(--green-glow); }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn:disabled::after { display: none; }
+
+  /* TIMER PANEL */
+  .timer-panel {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 28px 24px; margin-bottom: 32px;
+    position: relative; display: none;
+    transition: border-color 0.4s;
+  }
+  .timer-panel.visible { display: block; }
+  .timer-panel.qa-mode { border-color: rgba(77,166,255,0.3); }
+
+  .phase-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Share Tech Mono', monospace; font-size: 10px;
+    letter-spacing: 0.25em; padding: 5px 12px; margin-bottom: 16px;
+    border: 1px solid; transition: all 0.4s;
+  }
+  .phase-pill.present { color: var(--amber); border-color: var(--amber-dim); background: var(--amber-glow); }
+  .phase-pill.qa { color: var(--blue); border-color: rgba(77,166,255,0.3); background: var(--blue-glow); }
+  .phase-dot { width:6px; height:6px; border-radius:50%; animation: pulse-dot 1s infinite; }
+  .phase-pill.present .phase-dot { background: var(--amber); }
+  .phase-pill.qa .phase-dot { background: var(--blue); }
+
+  .active-speaker-name {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(18px,4vw,26px); font-weight: 700;
+    color: #fff; margin-bottom: 20px; letter-spacing: 0.05em;
+  }
+  .active-speaker-name .index {
+    font-size: 11px; color: var(--text-dim); letter-spacing: 0.2em;
+    font-weight: 400; display: block; margin-bottom: 4px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .timer-display {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(52px,12vw,88px); font-weight: 900;
+    letter-spacing: 0.05em; line-height: 1; margin-bottom: 8px;
+    transition: color 0.3s, text-shadow 0.3s;
+    color: var(--amber); text-shadow: 0 0 30px var(--amber-glow);
+  }
+  .timer-display.qa-col { color: var(--blue); text-shadow: 0 0 30px var(--blue-glow); }
+  .timer-display.warning { color: #ff8c00; text-shadow: 0 0 40px rgba(255,140,0,0.3); animation: flicker 1.5s ease-in-out infinite; }
+  .timer-display.danger { color: var(--red); text-shadow: 0 0 40px var(--red-glow); animation: flicker 0.6s ease-in-out infinite; }
+  @keyframes flicker { 0%,100%{opacity:1} 50%{opacity:0.75} }
+
+  /* Dual progress track */
+  .progress-track {
+    height: 4px; background: var(--surface2); margin-bottom: 24px;
+    display: flex; gap: 3px;
+  }
+  .progress-segment { flex:1; position: relative; overflow: hidden; background: var(--surface2); }
+  .progress-segment.hidden { display: none; }
+  .progress-fill-bar {
+    position: absolute; inset: 0; width: 100%;
+    transform-origin: left; transform: scaleX(1);
+    transition: transform 1s linear, background 0.3s;
+  }
+  .progress-fill-bar.present-col { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+  .progress-fill-bar.qa-col { background: var(--blue); box-shadow: 0 0 8px var(--blue); }
+  .progress-fill-bar.warning { background: #ff8c00 !important; box-shadow: 0 0 8px #ff8c00 !important; }
+  .progress-fill-bar.danger { background: var(--red) !important; box-shadow: 0 0 8px var(--red) !important; }
+
+  .timer-controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+  .breakout-warning {
+    display: none; align-items: center; gap: 10px;
+    background: rgba(255,59,59,0.08); border: 1px solid rgba(255,59,59,0.3);
+    padding: 12px 16px; margin-bottom: 20px; animation: warn-pulse 1s infinite;
+  }
+  .breakout-warning.visible { display: flex; }
+  @keyframes warn-pulse { 0%,100%{border-color:rgba(255,59,59,0.3)} 50%{border-color:rgba(255,59,59,0.8)} }
+  .warning-icon { color: var(--red); font-size: 18px; animation: flicker 0.5s infinite; }
+  .warning-text { font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 0.15em; color: var(--red); }
+
+  /* ROSTER */
+  .roster-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .roster-title { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 0.3em; color: var(--text-dim); }
+  .roster-list { display: flex; flex-direction: column; gap: 4px; }
+
+  .roster-item {
+    display: flex; align-items: center;
+    padding: 13px 12px 13px 16px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid transparent; transition: all 0.2s;
+    gap: 8px;
+  }
+  .roster-item.waiting { border-left-color: var(--text-dim); }
+  .roster-item.active { border-left-color: var(--amber); background: rgba(245,166,35,0.04); }
+  .roster-item.qa-mode { border-left-color: var(--blue); background: rgba(77,166,255,0.04); }
+  .roster-item.done { border-left-color: var(--green); opacity: 0.6; }
+  .roster-item.done .person-name { text-decoration: line-through; text-decoration-color: var(--text-dim); }
+  .roster-item.dragging { opacity: 0.35; border-style: dashed; }
+  .roster-item.drag-over { border-color: var(--amber) !important; border-style: solid !important; }
+
+  .drag-handle {
+    color: var(--text-dim); cursor: grab; font-size: 14px;
+    padding: 2px 2px; user-select: none; flex-shrink: 0;
+    letter-spacing: -1px; line-height: 1;
+    opacity: 0.5; transition: opacity 0.15s;
+  }
+  .drag-handle:hover { opacity: 1; color: var(--amber); }
+  .drag-handle:active { cursor: grabbing; }
+  .roster-item.done .drag-handle,
+  .roster-item.active .drag-handle,
+  .roster-item.qa-mode .drag-handle { opacity: 0; pointer-events: none; cursor: default; }
+
+  .roster-num {
+    font-family: 'Orbitron', monospace; font-size: 10px;
+    color: var(--text-dim); width: 20px; text-align: right; flex-shrink: 0;
+  }
+  .roster-item.active .roster-num { color: var(--amber); }
+  .roster-item.done .roster-num { color: var(--green); }
+
+  .person-name {
+    font-family: 'IBM Plex Mono', monospace; font-size: 15px;
+    color: #fff; font-weight: 500; letter-spacing: 0.02em;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    flex: 1; min-width: 0;
+  }
+
+  .person-name-input {
+    background: var(--bg); border: 1px solid var(--amber);
+    color: #fff; font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px; padding: 4px 8px; outline: none;
+    width: 160px; max-width: 100%; flex: 1;
+  }
+
+  .roster-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .roster-badges { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+
+  .badge {
+    font-family: 'Share Tech Mono', monospace; font-size: 9px;
+    letter-spacing: 0.12em; padding: 3px 7px; border-radius: 2px;
+  }
+  .badge-on-air { background: var(--amber-glow); color: var(--amber); border: 1px solid var(--amber-dim); animation: pulse-dot 1.5s infinite; }
+  .badge-qa { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(77,166,255,0.4); animation: pulse-dot 1.5s infinite; }
+  .badge-done { background: var(--green-glow); color: var(--green); border: 1px solid rgba(57,211,83,0.3); }
+  .badge-breakout { background: var(--red-glow); color: var(--red); border: 1px solid rgba(255,59,59,0.4); animation: warn-pulse 2s infinite; }
+  .badge-waiting { color: var(--text-dim); border: 1px solid var(--border); }
+
+  .queue-actions { display: flex; gap: 3px; }
+  .icon-btn {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text-dim); width: 26px; height: 26px; cursor: pointer;
+    font-size: 12px; display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+  .icon-btn:hover { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
+  .icon-btn.del:hover { border-color: var(--red); color: var(--red); background: var(--red-glow); }
+  .icon-btn:disabled { opacity: 0.2; cursor: not-allowed; pointer-events: none; }
+
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--text-dim); }
+  .empty-state .big-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
+  .empty-state p { font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 0.2em; line-height: 1.8; }
+
+  .start-next-area { margin-top: 16px; display: none; justify-content: center; }
+  .start-next-area.visible { display: flex; }
+
+  .session-complete {
+    display: none; text-align: center; padding: 40px 24px;
+    border: 1px solid rgba(57,211,83,0.3); background: rgba(57,211,83,0.03); margin-top: 24px;
+  }
+  .session-complete.visible { display: block; }
+  .session-complete h2 { font-family: 'Orbitron', monospace; font-size: 20px; font-weight: 700; color: var(--green); margin-bottom: 8px; letter-spacing: 0.1em; }
+  .session-complete p { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-dim); letter-spacing: 0.2em; }
+
+  #conn-overlay {
+    position: fixed; inset: 0; background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999; flex-direction: column; gap: 16px;
+  }
+  #conn-overlay .spin {
+    width: 40px; height: 40px;
+    border: 2px solid var(--border); border-top-color: var(--amber);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #conn-overlay p { font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 0.3em; color: var(--text-dim); }
+
+  .toast {
+    position: fixed; bottom: 32px; right: 32px;
+    background: var(--surface2); border: 1px solid var(--border-bright);
+    padding: 12px 20px; font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; letter-spacing: 0.15em; color: var(--amber);
+    z-index: 10000; transform: translateY(80px); opacity: 0;
+    transition: all 0.3s; max-width: 280px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  @media (max-width: 600px) {
+    .timer-display { font-size: 52px; }
+    .join-row { flex-direction: column; }
+    .timer-controls { flex-direction: column; }
+    .timer-controls .btn { width: 100%; text-align: center; }
+    .timer-config { gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="conn-overlay">
+  <div class="spin"></div>
+  <p>INITIALIZING SESSION</p>
+</div>
+
+<div class="app">
+  <header>
+    <div class="header-left">
+      <div class="header-tag">// MID-SPRINT STANDUP</div>
+      <h1>STAND<span>UP</span></h1>
+      <div class="status-dot"><div class="dot"></div><span id="live-count">0 IN QUEUE</span></div>
+    </div>
+    <div class="participant-count">
+      <span id="header-count">0</span>
+      <span>REMAINING</span>
+    </div>
+  </header>
+
+  <div class="join-section">
+    <div class="join-row">
+      <input type="text" id="name-input" placeholder="enter your name..." maxlength="32" autocomplete="off" autocorrect="off">
+      <button class="btn btn-amber" id="join-btn">JOIN QUEUE</button>
+    </div>
+    <div class="timer-config">
+      <label>PRESENT TIME</label>
+      <div class="timer-stepper">
+        <button id="dec-present">−</button>
+        <div class="val" id="present-val">5</div>
+        <button id="inc-present">+</button>
+      </div>
+      <label>MIN</label>
+      <label style="margin-left:8px">Q&amp;A TIME</label>
+      <div class="timer-stepper">
+        <button id="dec-qa">−</button>
+        <div class="val" id="qa-val">5</div>
+        <button id="inc-qa">+</button>
+      </div>
+      <label>MIN</label>
+    </div>
+  </div>
+
+  <!-- Active timer panel -->
+  <div class="timer-panel" id="timer-panel">
+    <div class="breakout-warning" id="breakout-warning">
+      <span class="warning-icon">⚠</span>
+      <span class="warning-text">OVER TIME — BREAKOUT ROOM RECOMMENDED</span>
+    </div>
+
+    <div class="phase-pill present" id="phase-pill">
+      <div class="phase-dot"></div>
+      <span id="phase-text">PRESENT TIME</span>
+    </div>
+
+    <div class="active-speaker-name">
+      <span class="index" id="speaker-index">SPEAKER 1 OF 1</span>
+      <span id="speaker-name-display">—</span>
+    </div>
+
+    <div class="timer-display" id="timer-display">05:00</div>
+
+    <div class="progress-track">
+      <div class="progress-segment" id="seg-present"><div class="progress-fill-bar present-col" id="fill-present"></div></div>
+      <div class="progress-segment hidden" id="seg-qa"><div class="progress-fill-bar qa-col" id="fill-qa"></div></div>
+    </div>
+
+    <div class="timer-controls">
+      <button class="btn btn-amber" id="start-btn">▶ START PRESENT</button>
+      <button class="btn btn-blue" id="qa-btn" style="display:none">◆ START Q&amp;A</button>
+      <button class="btn btn-green" id="done-btn" disabled>✓ DONE</button>
+    </div>
+  </div>
+
+  <div class="roster-header">
+    <div class="roster-title">// SPEAKER QUEUE</div>
+    <button class="btn btn-ghost" id="reset-btn" style="font-size:9px;padding:6px 12px;display:none">RESET SESSION</button>
+  </div>
+  <div class="roster-list" id="roster-list">
+    <div class="empty-state">
+      <div class="big-icon">◈</div>
+      <p>NO SPEAKERS QUEUED<br>ENTER YOUR NAME ABOVE TO JOIN</p>
+    </div>
+  </div>
+
+  <div class="start-next-area" id="start-next-area">
+    <button class="btn btn-amber" id="start-next-btn">▶ START STANDUP</button>
+  </div>
+
+  <div class="session-complete" id="session-complete">
+    <h2>SESSION COMPLETE</h2>
+    <p>ALL SPEAKERS DONE // SHIP IT</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ================================================================
+// STATE
+// ================================================================
+const STORAGE_KEY = 'standup-v4';
+const POLL_MS = 2000;
+
+// phase: 'idle' | 'presenting' | 'qa'
+let S = {
+  speakers: [],   // [{id, name, status:'waiting'|'active'|'done', breakout:false}]
+  presentMins: 5,
+  qaMins: 5,
+  phase: 'idle',
+  presentStartedAt: null,
+  qaStartedAt: null,
+};
+
+let timerInterval = null;
+let secsLeft = 0;
+let totalSecs = 0;
+let lastHash = '';
+let dragId = null;
+
+// DOM
+const $ = id => document.getElementById(id);
+const nameInput   = $('name-input');
+const joinBtn     = $('join-btn');
+const presentValEl= $('present-val');
+const qaValEl     = $('qa-val');
+const timerPanel  = $('timer-panel');
+const timerDisp   = $('timer-display');
+const fillPresent = $('fill-present');
+const fillQa      = $('fill-qa');
+const segQa       = $('seg-qa');
+const segPresent  = $('seg-present');
+const activeNameEl= $('speaker-name-display');
+const spkIndex    = $('speaker-index');
+const startBtn    = $('start-btn');
+const qaBtn       = $('qa-btn');
+const doneBtn     = $('done-btn');
+const phasePill   = $('phase-pill');
+const phaseText   = $('phase-text');
+const rosterList  = $('roster-list');
+const startNextArea = $('start-next-area');
+const startNextBtn  = $('start-next-btn');
+const sessionComp   = $('session-complete');
+const brkWarn       = $('breakout-warning');
+const liveCount     = $('live-count');
+const headerCount   = $('header-count');
+const resetBtn      = $('reset-btn');
+const connOverlay   = $('conn-overlay');
+const toastEl       = $('toast');
+
+// ================================================================
+// STORAGE
+// ================================================================
+async function load() {
+  try { const r = await window.storage.get(STORAGE_KEY, true); if (r?.value) return JSON.parse(r.value); } catch(e){}
+  return null;
+}
+async function save() {
+  try { await window.storage.set(STORAGE_KEY, JSON.stringify(S), true); } catch(e){}
+}
+
+// ================================================================
+// BOOT
+// ================================================================
+async function init() {
+  const saved = await load();
+  if (saved) {
+    S = saved;
+    presentValEl.textContent = S.presentMins || 5;
+    qaValEl.textContent = S.qaMins || 5;
+  }
+  connOverlay.style.display = 'none';
+  syncTimer();
+  render();
+  setInterval(poll, POLL_MS);
+}
+
+async function poll() {
+  const remote = await load();
+  if (!remote) return;
+  const h = JSON.stringify(remote);
+  if (h === lastHash) return;
+  lastHash = h;
+  const prevPhase = S.phase;
+  S = remote;
+  presentValEl.textContent = S.presentMins || 5;
+  qaValEl.textContent = S.qaMins || 5;
+  if (S.phase !== prevPhase || !timerInterval) syncTimer();
+  render();
+}
+
+// ================================================================
+// TIMER SYNC
+// ================================================================
+function syncTimer() {
+  stopTimer();
+  const phase = S.phase;
+  if (phase === 'presenting' && S.presentStartedAt) {
+    const total = (S.presentMins||5) * 60;
+    const elapsed = Math.floor((Date.now() - new Date(S.presentStartedAt).getTime()) / 1000);
+    const rem = total - elapsed;
+    totalSecs = total;
+    if (rem > 0) { secsLeft = rem; startCountdown('presenting'); }
+    else { secsLeft = 0; setDisplay(0, total, 'presenting'); }
+  } else if (phase === 'qa' && S.qaStartedAt) {
+    const total = (S.qaMins||5) * 60;
+    const elapsed = Math.floor((Date.now() - new Date(S.qaStartedAt).getTime()) / 1000);
+    const rem = total - elapsed;
+    totalSecs = total;
+    if (rem > 0) { secsLeft = rem; startCountdown('qa'); }
+    else { secsLeft = 0; setDisplay(0, total, 'qa'); }
+  } else {
+    // idle: show present time
+    const t = (S.presentMins||5) * 60;
+    setDisplay(t, t, 'idle');
+  }
+}
+
+function startCountdown(phase) {
+  if (timerInterval) return;
+  timerInterval = setInterval(() => {
+    secsLeft = Math.max(0, secsLeft - 1);
+    setDisplay(secsLeft, totalSecs, phase);
+    if (secsLeft <= 0) {
+      stopTimer();
+      onExpired(phase);
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function onExpired(phase) {
+  if (phase === 'presenting') {
+    // Auto-roll into Q&A
+    doStartQA();
+  } else if (phase === 'qa') {
+    doBreakout();
+  }
+}
+
+async function doBreakout() {
+  const idx = S.speakers.findIndex(s => s.status === 'active');
+  if (idx !== -1 && !S.speakers[idx].breakout) {
+    S.speakers[idx].breakout = true;
+    await save();
+  }
+  brkWarn.classList.add('visible');
+  toast('⚠ BREAKOUT ROOM RECOMMENDED');
+  render();
+}
+
+function setDisplay(sec, total, phase) {
+  const s = Math.max(0, sec);
+  const mm = String(Math.floor(s/60)).padStart(2,'0');
+  const ss = String(s%60).padStart(2,'0');
+  timerDisp.textContent = `${mm}:${ss}`;
+
+  const ratio = total > 0 ? s/total : 1;
+
+  // Progress bars
+  if (phase === 'presenting' || phase === 'idle') {
+    fillPresent.style.transform = `scaleX(${ratio})`;
+    timerDisp.classList.remove('qa-col');
+  } else if (phase === 'qa') {
+    fillQa.style.transform = `scaleX(${ratio})`;
+    timerDisp.classList.add('qa-col');
+  }
+
+  // Colour warnings
+  timerDisp.classList.remove('warning','danger');
+  fillPresent.classList.remove('warning','danger');
+  fillQa.classList.remove('warning','danger');
+
+  if (phase !== 'idle') {
+    const fill = phase === 'qa' ? fillQa : fillPresent;
+    if (ratio <= 0) { timerDisp.classList.add('danger'); fill.classList.add('danger'); }
+    else if (ratio <= 0.25) { timerDisp.classList.add('warning'); fill.classList.add('warning'); }
+  }
+}
+
+// ================================================================
+// ACTIONS
+// ================================================================
+async function doJoin() {
+  const name = nameInput.value.trim();
+  if (!name) return;
+  if (S.speakers.find(s => s.name.toLowerCase() === name.toLowerCase())) { toast('Name already in queue'); return; }
+  S.speakers.push({ id: Date.now()+''+Math.floor(Math.random()*99999), name, status:'waiting', breakout:false });
+  nameInput.value = '';
+  await save();
+  render();
+  toast(`${name} joined the queue`);
+}
+
+async function doActivateNext() {
+  const idx = S.speakers.findIndex(s => s.status === 'waiting');
+  if (idx === -1) return;
+  S.speakers[idx].status = 'active';
+  S.phase = 'idle';
+  S.presentStartedAt = null;
+  S.qaStartedAt = null;
+  stopTimer();
+  const t = (S.presentMins||5)*60;
+  setDisplay(t, t, 'idle');
+  brkWarn.classList.remove('visible');
+  await save();
+  render();
+}
+
+async function doStartPresent() {
+  let active = S.speakers.find(s => s.status === 'active');
+  if (!active) {
+    const idx = S.speakers.findIndex(s => s.status === 'waiting');
+    if (idx === -1) return;
+    S.speakers[idx].status = 'active';
+    active = S.speakers[idx];
+  }
+  stopTimer();
+  S.phase = 'presenting';
+  S.presentStartedAt = new Date().toISOString();
+  S.qaStartedAt = null;
+  brkWarn.classList.remove('visible');
+  await save();
+  secsLeft = (S.presentMins||5)*60;
+  totalSecs = secsLeft;
+  render();
+  startCountdown('presenting');
+}
+
+async function doStartQA() {
+  stopTimer();
+  S.phase = 'qa';
+  S.qaStartedAt = new Date().toISOString();
+  brkWarn.classList.remove('visible');
+  await save();
+  secsLeft = (S.qaMins||5)*60;
+  totalSecs = secsLeft;
+  render();
+  startCountdown('qa');
+}
+
+async function doDone() {
+  stopTimer();
+  const idx = S.speakers.findIndex(s => s.status === 'active');
+  if (idx !== -1) S.speakers[idx].status = 'done';
+  S.phase = 'idle';
+  S.presentStartedAt = null;
+  S.qaStartedAt = null;
+  brkWarn.classList.remove('visible');
+  await save();
+  render();
+}
+
+async function doDelete(id) {
+  S.speakers = S.speakers.filter(s => s.id !== id);
+  await save(); render();
+}
+
+async function doRename(id, newName) {
+  const sp = S.speakers.find(s => s.id === id);
+  if (sp && newName.trim()) sp.name = newName.trim();
+  await save(); render();
+}
+
+async function doMove(id, dir) {
+  const arr = S.speakers;
+  const i = arr.findIndex(s => s.id === id);
+  const j = i + dir;
+  if (j < 0 || j >= arr.length || arr[j].status !== 'waiting') return;
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+  await save(); render();
+}
+
+async function doReset() {
+  if (!confirm('Reset session? All speakers will be cleared.')) return;
+  stopTimer();
+  S = { speakers:[], presentMins: parseInt(presentValEl.textContent)||5, qaMins: parseInt(qaValEl.textContent)||5, phase:'idle', presentStartedAt:null, qaStartedAt:null };
+  brkWarn.classList.remove('visible');
+  await save(); render();
+}
+
+// ================================================================
+// RENDER
+// ================================================================
+function render() {
+  const spk = S.speakers;
+  const active = spk.find(s => s.status === 'active');
+  const waiting = spk.filter(s => s.status === 'waiting');
+  const done = spk.filter(s => s.status === 'done');
+  const allDone = spk.length > 0 && !active && waiting.length === 0;
+  const phase = S.phase;
+
+  liveCount.textContent = `${spk.length} IN QUEUE`;
+  headerCount.textContent = waiting.length + (active ? 1 : 0);
+
+  // TIMER PANEL
+  if (active) {
+    timerPanel.classList.add('visible');
+    timerPanel.classList.toggle('qa-mode', phase === 'qa');
+    activeNameEl.textContent = active.name;
+    spkIndex.textContent = `SPEAKER ${done.length+1} OF ${spk.length}`;
+
+    // Phase pill
+    phasePill.className = 'phase-pill ' + (phase === 'qa' ? 'qa' : 'present');
+    phaseText.textContent = phase === 'qa' ? 'Q&A / COMMENT TIME' : 'PRESENT TIME';
+
+    // Progress segments
+    segQa.classList.toggle('hidden', phase !== 'qa');
+
+    if (phase === 'idle') {
+      startBtn.style.display = ''; startBtn.disabled = false;
+      qaBtn.style.display = 'none';
+      doneBtn.disabled = false;
+      const t = (S.presentMins||5)*60;
+      setDisplay(t, t, 'idle');
+      fillPresent.style.transform = 'scaleX(1)';
+    } else if (phase === 'presenting') {
+      startBtn.style.display = 'none';
+      qaBtn.style.display = ''; qaBtn.disabled = false;
+      doneBtn.disabled = false;
+    } else if (phase === 'qa') {
+      startBtn.style.display = 'none';
+      qaBtn.style.display = 'none';
+      doneBtn.disabled = false;
+    }
+
+    if (active.breakout) brkWarn.classList.add('visible');
+  } else {
+    timerPanel.classList.remove('visible');
+  }
+
+  // START NEXT
+  if (!active && waiting.length > 0 && !allDone) {
+    startNextArea.classList.add('visible');
+    startNextBtn.textContent = done.length === 0 ? '▶ START STANDUP' : '▶ NEXT SPEAKER';
+  } else {
+    startNextArea.classList.remove('visible');
+  }
+
+  sessionComp.classList.toggle('visible', allDone);
+  resetBtn.style.display = spk.length > 0 ? '' : 'none';
+
+  // ROSTER
+  if (spk.length === 0) {
+    rosterList.innerHTML = `<div class="empty-state"><div class="big-icon">◈</div><p>NO SPEAKERS QUEUED<br>ENTER YOUR NAME ABOVE TO JOIN</p></div>`;
+    return;
+  }
+
+  rosterList.innerHTML = '';
+  spk.forEach((s, i) => {
+    const isQaActive = s.status === 'active' && phase === 'qa';
+    const cssClass = isQaActive ? 'qa-mode' : s.status;
+    const canEdit = s.status === 'waiting';
+
+    let badges = '';
+    if (s.status === 'active' && phase !== 'qa') badges += `<span class="badge badge-on-air">ON AIR</span>`;
+    if (isQaActive) badges += `<span class="badge badge-qa">Q&amp;A</span>`;
+    if (s.status === 'done') badges += `<span class="badge badge-done">✓ DONE</span>`;
+    if (s.breakout) badges += `<span class="badge badge-breakout">⚠ BREAKOUT</span>`;
+    if (s.status === 'waiting') badges += `<span class="badge badge-waiting">WAITING</span>`;
+
+    // Determine if up/down buttons should be disabled
+    const prevIsWaiting = i > 0 && spk[i-1].status === 'waiting';
+    const nextIsWaiting = i < spk.length-1 && spk[i+1]?.status === 'waiting';
+
+    const div = document.createElement('div');
+    div.className = `roster-item ${cssClass}`;
+    div.dataset.id = s.id;
+    div.draggable = canEdit;
+
+    div.innerHTML = `
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <span class="roster-num">${String(i+1).padStart(2,'0')}</span>
+      <span class="person-name">${esc(s.name)}</span>
+      <div class="roster-right">
+        <div class="roster-badges">${badges}</div>
+        <div class="queue-actions">
+          ${canEdit ? `<button class="icon-btn" data-action="edit" data-id="${s.id}" title="Rename">✎</button>` : ''}
+          ${canEdit ? `<button class="icon-btn" data-action="up" data-id="${s.id}" title="Move up" ${!prevIsWaiting?'disabled':''}>↑</button>` : ''}
+          ${canEdit ? `<button class="icon-btn" data-action="dn" data-id="${s.id}" title="Move down" ${!nextIsWaiting?'disabled':''}>↓</button>` : ''}
+          ${canEdit ? `<button class="icon-btn del" data-action="del" data-id="${s.id}" title="Remove">✕</button>` : ''}
+        </div>
+      </div>
+    `;
+
+    if (canEdit) {
+      div.addEventListener('dragstart', e => { dragId = s.id; div.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+      div.addEventListener('dragover', e => { e.preventDefault(); if (s.id !== dragId) div.classList.add('drag-over'); });
+      div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
+      div.addEventListener('drop', async e => {
+        e.preventDefault(); div.classList.remove('drag-over');
+        if (!dragId || dragId === s.id) return;
+        const arr = S.speakers;
+        const fi = arr.findIndex(x => x.id === dragId);
+        const ti = arr.findIndex(x => x.id === s.id);
+        if (fi<0||ti<0||arr[ti].status!=='waiting') return;
+        const [moved] = arr.splice(fi,1); arr.splice(ti,0,moved);
+        await save(); render();
+      });
+      div.addEventListener('dragend', () => { div.classList.remove('dragging'); rosterList.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over')); dragId=null; });
+    }
+
+    rosterList.appendChild(div);
+  });
+
+  // Action delegation
+  rosterList.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const {action, id} = e.currentTarget.dataset;
+      if (action==='edit') startInlineEdit(id);
+      if (action==='up')   doMove(id, -1);
+      if (action==='dn')   doMove(id, 1);
+      if (action==='del')  doDelete(id);
+    });
+  });
+}
+
+function startInlineEdit(id) {
+  const item = rosterList.querySelector(`[data-id="${id}"]`);
+  if (!item) return;
+  const nameEl = item.querySelector('.person-name');
+  const orig = nameEl.textContent;
+  const inp = document.createElement('input');
+  inp.type = 'text'; inp.className = 'person-name-input';
+  inp.value = orig;
+  nameEl.replaceWith(inp);
+  inp.focus(); inp.select();
+  const commit = () => doRename(id, inp.value || orig);
+  inp.addEventListener('blur', commit);
+  inp.addEventListener('keydown', e => {
+    if (e.key==='Enter') { e.preventDefault(); commit(); }
+    if (e.key==='Escape') { inp.value=orig; commit(); }
+  });
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ================================================================
+// TIMER STEPPERS
+// ================================================================
+$('inc-present').onclick = async () => { S.presentMins=Math.min((S.presentMins||5)+1,30); presentValEl.textContent=S.presentMins; if(S.phase==='idle'){const t=S.presentMins*60;setDisplay(t,t,'idle');fillPresent.style.transform='scaleX(1)';} await save(); };
+$('dec-present').onclick = async () => { S.presentMins=Math.max((S.presentMins||5)-1,1); presentValEl.textContent=S.presentMins; if(S.phase==='idle'){const t=S.presentMins*60;setDisplay(t,t,'idle');fillPresent.style.transform='scaleX(1)';} await save(); };
+$('inc-qa').onclick = async () => { S.qaMins=Math.min((S.qaMins||5)+1,30); qaValEl.textContent=S.qaMins; await save(); };
+$('dec-qa').onclick = async () => { S.qaMins=Math.max((S.qaMins||5)-1,1); qaValEl.textContent=S.qaMins; await save(); };
+
+// ================================================================
+// MAIN EVENTS
+// ================================================================
+joinBtn.onclick = doJoin;
+nameInput.addEventListener('keydown', e => { if(e.key==='Enter') doJoin(); });
+startBtn.onclick = doStartPresent;
+qaBtn.onclick = doStartQA;
+doneBtn.onclick = doDone;
+startNextBtn.onclick = doActivateNext;
+resetBtn.onclick = doReset;
+
+// ================================================================
+// TOAST
+// ================================================================
+let toastT;
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => toastEl.classList.remove('show'), 2800);
+}
+
+// ================================================================
+// GO
+// ================================================================
+if (window.storage) {
+  init();
+} else {
+  connOverlay.style.display = 'none';
+  toast('Local mode — no sync across tabs');
+  render();
+}
+</script>
+</body>
+</html>
