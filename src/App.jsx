@@ -29,6 +29,21 @@ export default function App() {
   const { message: toastMsg, visible: toastVisible, showToast } = useToast()
   const { theme, toggleTheme } = useTheme()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [notesUnread, setNotesUnread] = useState(false)
+  const sidebarOpenRef = useRef(false)
+
+  const handleNotesActivity = useCallback(() => {
+    if (!sidebarOpenRef.current) setNotesUnread(true)
+  }, [])
+
+  const handleSidebarToggle = useCallback(() => {
+    setSidebarOpen((prev) => {
+      const next = !prev
+      sidebarOpenRef.current = next
+      if (next) setNotesUnread(false)
+      return next
+    })
+  }, [])
 
   // We use a ref to publish so we always have the latest publish fn
   const publishRef = useRef(null)
@@ -246,14 +261,15 @@ export default function App() {
     <div className={styles.shell}>
       {/* Desktop sidebar */}
       <aside className={`${styles.sidebar} ${sidebarOpen ? '' : styles.sidebarCollapsed}`}>
-        <SharedNotes sidebarMode />
+        <SharedNotes sidebarMode onRemoteActivity={handleNotesActivity} />
         <button
           className={styles.sidebarTab}
-          onClick={() => setSidebarOpen((o) => !o)}
+          onClick={handleSidebarToggle}
           title={sidebarOpen ? 'Collapse notes' : 'Expand notes'}
         >
           <span className={styles.sidebarTabIcon}>{sidebarOpen ? '◂' : '▸'}</span>
           {!sidebarOpen && <span className={styles.sidebarTabText}>NOTES</span>}
+          {!sidebarOpen && notesUnread && <span className={styles.unreadDot} />}
         </button>
       </aside>
 

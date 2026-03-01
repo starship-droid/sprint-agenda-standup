@@ -107,6 +107,22 @@
   .sidebarCollapsed .sidebarTab {
     height: 100px;
   }
+
+  .unreadDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 8px var(--amber);
+    flex-shrink: 0;
+    margin-top: 8px;
+    animation: sidebarNotePulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes sidebarNotePulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--amber); }
+    50% { opacity: 0.5; box-shadow: 0 0 3px var(--amber); }
+  }
 }
 
 .app {

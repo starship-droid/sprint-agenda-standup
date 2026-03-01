@@ -30,8 +30,9 @@ function downloadFile(filename, content, mime) {
   URL.revokeObjectURL(url)
 }
 
-export function SharedNotes({ sidebarMode }) {
+export function SharedNotes({ sidebarMode, onRemoteActivity, hasUnread: externalUnread }) {
   const [open, setOpen]         = useState(false)
+  const [mobileUnread, setMobileUnread] = useState(false)
   const editorRef               = useRef(null)
   const localEditRef            = useRef(false)
   const localEditTimerRef       = useRef(null)
@@ -48,8 +49,11 @@ export function SharedNotes({ sidebarMode }) {
     if (localEditRef.current) return
     if (editorRef.current && editorRef.current.innerHTML !== remote) {
       editorRef.current.innerHTML = remote
+      // Notify parent (desktop sidebar) or self (mobile) of remote activity
+      onRemoteActivity?.()
+      setMobileUnread(true)
     }
-  }, [])
+  }, [onRemoteActivity])
 
   const { publish } = useAblyNotes({ onNotesUpdate: handleRemoteNotes })
 
@@ -93,12 +97,13 @@ export function SharedNotes({ sidebarMode }) {
   return (
     <div className={panelClass}>
       {!sidebarMode && (
-        <button className={styles.toggle} onClick={() => setOpen((o) => !o)}>
+        <button className={styles.toggle} onClick={() => setOpen((o) => { if (!o) setMobileUnread(false); return !o })}>
           <span className={styles.toggleIcon}>{open ? '▾' : '▸'}</span>
           <span className={styles.toggleLabel}>SHARED NOTES</span>
           <span className={styles.toggleHint}>
             {open ? '' : '// click to expand'}
           </span>
+          {!open && mobileUnread && <span className={styles.unreadDot} />}
         </button>
       )}
 

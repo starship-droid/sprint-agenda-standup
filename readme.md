@@ -16,7 +16,8 @@ A real-time agenda timer for standups, retros, planning sessions — anything wh
 - **Auto-advance** — when a speaker finishes Q&A, the next speaker is loaded automatically
 - **Drag-and-drop reorder** — grab the ⠿ handle to drag speakers into a new order
 - **Editable timer values** — type a number directly or use +/− steppers (1–30 min)
-- **Shared notes** — collapsible Etherpad-style notepad synced in real-time across all devices, with line numbers and a status bar
+- **Shared notes** — collapsible Etherpad-style rich text notepad synced in real-time across all devices. Desktop shows a sidebar; mobile shows a collapsible panel. Includes a BBB-style toolbar (bold, italic, underline, strikethrough, lists, indent, undo/redo, clear formatting, export as TXT/HTML)
+- **Unread notes notification** — when someone edits shared notes while your panel is collapsed, a pulsing red dot appears on the toggle/tab prompting you to open it. Clears per-user when you expand the panel
 - **Breakout room alert** — if either timer runs out, a ⚠ Breakout Room warning is added to that speaker's name
 - **Configurable timers** — set Present and Q&A duration independently (1–30 min each, default 5 min)
 - **Queue management** — hover any waiting speaker to reorder (↑↓), edit their name (✎), or remove them (✕)
