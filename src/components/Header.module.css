@@ -7,6 +7,12 @@
   border-bottom: 1px solid var(--border);
 }
 
+.right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
 .sub {
   font-family: 'Share Tech Mono', monospace;
   font-size: 9px;
@@ -41,7 +47,7 @@
   font-family: 'Orbitron', monospace;
   font-size: clamp(20px, 5vw, 32px);
   font-weight: 900;
-  color: #fff;
+  color: var(--text);
   letter-spacing: 0.08em;
   line-height: 1;
 }
@@ -90,6 +96,12 @@
 }
 
 .right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.remaining {
   text-align: right;
 }
 

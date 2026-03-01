@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useAbly } from './hooks/useAbly'
 import { useToast } from './hooks/useToast'
+import { useTheme } from './hooks/useTheme'
 import { Header } from './components/Header'
 import { JoinSection } from './components/JoinSection'
 import { TimerPanel } from './components/TimerPanel'
@@ -24,6 +25,7 @@ export default function App() {
   const [isConnecting, setConnecting] = useState(true)
   const [ready, setReady]           = useState(false)
   const { message: toastMsg, visible: toastVisible, showToast } = useToast()
+  const { theme, toggleTheme } = useTheme()
 
   // We use a ref to publish so we always have the latest publish fn
   const publishRef = useRef(null)
@@ -186,6 +188,8 @@ export default function App() {
         remaining={waiting.length + (active ? 1 : 0)}
         isConnected={isConnected}
         isConnecting={isConnecting}
+        theme={theme}
+        onThemeToggle={toggleTheme}
       />
 
       <JoinSection

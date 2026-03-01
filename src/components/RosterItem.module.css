@@ -44,7 +44,7 @@
 .name {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 14px;
-  color: #fff;
+  color: var(--text);
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -55,7 +55,7 @@
   flex: 1;
   background: var(--bg);
   border: 1px solid var(--amber);
-  color: #fff;
+  color: var(--text);
   font-family: 'IBM Plex Mono', monospace;
   font-size: 14px;
   padding: 3px 10px;

@@ -1,6 +1,7 @@
 import styles from './Header.module.css'
+import { ThemeToggle } from './ThemeToggle'
 
-export function Header({ speakerCount, remaining, isConnected, isConnecting }) {
+export function Header({ speakerCount, remaining, isConnected, isConnecting, theme, onThemeToggle }) {
   const dotClass = isConnecting
     ? styles.dotConnecting
     : isConnected
@@ -29,8 +30,11 @@ export function Header({ speakerCount, remaining, isConnected, isConnecting }) {
         </div>
       </div>
       <div className={styles.right}>
-        <div className={styles.count}>{remaining}</div>
-        <div className={styles.countLabel}>REMAINING</div>
+        <div className={styles.remaining}>
+          <div className={styles.count}>{remaining}</div>
+          <div className={styles.countLabel}>REMAINING</div>
+        </div>
+        <ThemeToggle theme={theme} onToggle={onThemeToggle} />
       </div>
     </header>
   )

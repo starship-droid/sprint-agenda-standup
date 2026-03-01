@@ -19,6 +19,25 @@
   --border-bright: rgba(245, 166, 35, 0.4);
 }
 
+[data-theme="light"] {
+  --bg: #f5f5f5;
+  --surface: #ffffff;
+  --surface2: #f0f0f0;
+  --amber: #e69500;
+  --amber-dim: #b87a1a;
+  --amber-glow: rgba(230, 149, 0, 0.2);
+  --blue: #0066cc;
+  --blue-glow: rgba(0, 102, 204, 0.15);
+  --red: #d32f2f;
+  --red-glow: rgba(211, 47, 47, 0.15);
+  --green: #2e7d32;
+  --green-glow: rgba(46, 125, 50, 0.1);
+  --text: #1a1a1a;
+  --text-dim: #666666;
+  --border: rgba(0, 0, 0, 0.1);
+  --border-bright: rgba(0, 0, 0, 0.3);
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -50,8 +69,24 @@ body::before {
   z-index: 1000;
 }
 
+[data-theme="light"] body::before {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.01) 2px,
+    rgba(0, 0, 0, 0.01) 4px
+  );
+}
+
 /* Grid background */
-body::after {
+b
+
+[data-theme="light"] body::after {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+}ody::after {
   content: '';
   position: fixed;
   inset: 0;

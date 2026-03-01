@@ -115,7 +115,7 @@
   font-family: 'Orbitron', monospace;
   font-size: clamp(18px, 4vw, 26px);
   font-weight: 700;
-  color: #fff;
+  color: var(--text);
   margin-bottom: 16px;
   letter-spacing: 0.04em;
 }
