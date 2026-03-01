@@ -45,22 +45,16 @@ export function useAbly({ onStateUpdate, onConnected, onDisconnected }) {
       if (isMounted.current) onDisconnected?.()
     })
 
-    const channel = client.channels.get(CHANNEL_NAME)
+    // rewind: '1' replays the last published message to new subscribers
+    // on channel attach, delivered through the normal subscribe callback.
+    // This guarantees new clients get the latest state before they can interact.
+    const channel = client.channels.get(CHANNEL_NAME, { params: { rewind: '1' } })
     channelRef.current = channel
 
-    // Subscribe to state updates from other clients
+    // Subscribe to state updates (including the rewound initial state)
     channel.subscribe('state', (message) => {
       if (isMounted.current && message.data) {
         onStateUpdate?.(message.data)
-      }
-    })
-
-    // Also get the last known state from history on join
-    channel.history({ limit: 1 }, (err, page) => {
-      if (err || !isMounted.current) return
-      const items = page?.items || []
-      if (items.length > 0 && items[0].data) {
-        onStateUpdate?.(items[0].data)
       }
     })
 
