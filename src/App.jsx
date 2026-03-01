@@ -17,6 +17,7 @@ const INITIAL_STATE = {
   phase: 'present',
   timerRunning: false,
   activeStartedAt: null,
+  pausedElapsed: 0,
 }
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
 
   // We use a ref to publish so we always have the latest publish fn
   const publishRef = useRef(null)
+  const dragRef = useRef(null)
 
   // Sync state + publish to Ably
   const updateState = useCallback((updater) => {
@@ -91,7 +93,7 @@ export default function App() {
     updateState((prev) => {
       const speakers = [...prev.speakers]
       speakers[idx] = { ...speakers[idx], status: 'present' }
-      return { ...prev, speakers, phase: 'present', timerRunning: false, activeStartedAt: null }
+      return { ...prev, speakers, phase: 'present', timerRunning: false, activeStartedAt: null, pausedElapsed: 0 }
     })
   }, [updateState])
 
@@ -102,11 +104,29 @@ export default function App() {
   }, [state.speakers, activateSpeaker])
 
   const startTimer = useCallback(() => {
-    updateState((prev) => ({
-      ...prev,
-      timerRunning: true,
-      activeStartedAt: Date.now(),
-    }))
+    updateState((prev) => {
+      // When resuming from pause, offset activeStartedAt by already-elapsed time
+      const offset = (prev.pausedElapsed || 0) * 1000
+      return {
+        ...prev,
+        timerRunning: true,
+        activeStartedAt: Date.now() - offset,
+        pausedElapsed: 0,
+      }
+    })
+  }, [updateState])
+
+  const pauseTimer = useCallback(() => {
+    updateState((prev) => {
+      if (!prev.timerRunning || !prev.activeStartedAt) return prev
+      const elapsed = Math.floor((Date.now() - prev.activeStartedAt) / 1000)
+      return {
+        ...prev,
+        timerRunning: false,
+        activeStartedAt: null,
+        pausedElapsed: elapsed,
+      }
+    })
   }, [updateState])
 
   const goToQA = useCallback(() => {
@@ -114,7 +134,7 @@ export default function App() {
       const speakers = prev.speakers.map((s) =>
         s.status === 'present' ? { ...s, status: 'qa', breakout: false } : s
       )
-      return { ...prev, speakers, phase: 'qa', timerRunning: false, activeStartedAt: null }
+      return { ...prev, speakers, phase: 'qa', timerRunning: true, activeStartedAt: Date.now(), pausedElapsed: 0 }
     })
   }, [updateState])
 
@@ -123,7 +143,19 @@ export default function App() {
       const speakers = prev.speakers.map((s) =>
         (s.status === 'present' || s.status === 'qa') ? { ...s, status: 'done' } : s
       )
-      return { ...prev, speakers, phase: 'present', timerRunning: false, activeStartedAt: null }
+      // Auto-advance: activate the next waiting speaker immediately
+      const nextIdx = speakers.findIndex((s) => s.status === 'waiting')
+      if (nextIdx !== -1) {
+        speakers[nextIdx] = { ...speakers[nextIdx], status: 'present' }
+      }
+      return {
+        ...prev,
+        speakers,
+        phase: 'present',
+        timerRunning: false,
+        activeStartedAt: null,
+        pausedElapsed: 0,
+      }
     })
   }, [updateState])
 
@@ -153,6 +185,33 @@ export default function App() {
       return { ...prev, speakers: arr }
     })
   }, [updateState])
+
+  const handleDragStart = useCallback((id) => {
+    dragRef.current = id
+  }, [])
+
+  const handleDragEnter = useCallback((targetId) => {
+    const draggedId = dragRef.current
+    if (!draggedId || draggedId === targetId) return
+    setState((prev) => {
+      const arr = [...prev.speakers]
+      const fromIdx = arr.findIndex((s) => s.id === draggedId)
+      const toIdx = arr.findIndex((s) => s.id === targetId)
+      if (fromIdx === -1 || toIdx === -1) return prev
+      const [moved] = arr.splice(fromIdx, 1)
+      arr.splice(toIdx, 0, moved)
+      return { ...prev, speakers: arr }
+    })
+  }, [])
+
+  const handleDragEnd = useCallback(() => {
+    if (!dragRef.current) return
+    dragRef.current = null
+    setState((prev) => {
+      setTimeout(() => publishRef.current?.(prev), 0)
+      return prev
+    })
+  }, [])
 
   const renameSpeaker = useCallback((id, name) => {
     updateState((prev) => ({
@@ -204,6 +263,7 @@ export default function App() {
         <TimerPanel
           state={state}
           onStart={startTimer}
+          onPause={pauseTimer}
           onNextPhase={goToQA}
           onDone={markDone}
           onExpired={handleExpired}
@@ -219,6 +279,15 @@ export default function App() {
           </button>
         )}
       </div>
+
+      {/* Start next */}
+      {!active && waiting.length > 0 && (
+        <div className={styles.startNextArea}>
+          <button className="btn btn-amber" onClick={startNextSpeaker}>
+            {done.length === 0 ? '▶ START SESSION' : '▶ START NEXT SPEAKER'}
+          </button>
+        </div>
+      )}
 
       <div className={styles.rosterList}>
         {state.speakers.length === 0 ? (
@@ -236,19 +305,13 @@ export default function App() {
               onDelete={deleteSpeaker}
               onMove={moveSpeaker}
               onRename={renameSpeaker}
+              onDragStart={handleDragStart}
+              onDragEnter={handleDragEnter}
+              onDragEnd={handleDragEnd}
             />
           ))
         )}
       </div>
-
-      {/* Start next */}
-      {!active && waiting.length > 0 && (
-        <div className={styles.startNextArea}>
-          <button className="btn btn-amber" onClick={startNextSpeaker}>
-            {done.length === 0 ? '▶ START SESSION' : '▶ START NEXT SPEAKER'}
-          </button>
-        </div>
-      )}
 
       {/* Session complete */}
       {allDone && (

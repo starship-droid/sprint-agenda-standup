@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import styles from './RosterItem.module.css'
 
-export function RosterItem({ speaker, index, total, onDelete, onMove, onRename }) {
+export function RosterItem({ speaker, index, total, onDelete, onMove, onRename, onDragStart, onDragEnter, onDragEnd }) {
   const [editing, setEditing]   = useState(false)
   const [editVal, setEditVal]   = useState(speaker.name)
 
@@ -28,8 +28,25 @@ export function RosterItem({ speaker, index, total, onDelete, onMove, onRename }
   ].filter(Boolean).join(' ')
 
   return (
-    <div className={rowClass} data-id={speaker.id}>
+    <div
+      className={rowClass}
+      data-id={speaker.id}
+      onDragOver={(e) => e.preventDefault()}
+      onDragEnter={() => onDragEnter?.(speaker.id)}
+    >
       <div className={styles.left}>
+        <span
+          className={`${styles.dragHandle} ${!canAct ? styles.dragDisabled : ''}`}
+          draggable={canAct}
+          onDragStart={(e) => {
+            if (!canAct) { e.preventDefault(); return }
+            e.dataTransfer.effectAllowed = 'move'
+            const row = e.target.closest('[data-id]')
+            if (row) e.dataTransfer.setDragImage(row, 0, 20)
+            onDragStart?.(speaker.id)
+          }}
+          onDragEnd={() => onDragEnd?.()}
+        >⠿</span>
         <span className={styles.num}>{String(index + 1).padStart(2, '0')}</span>
 
         {editing ? (

@@ -21,13 +21,14 @@ export function useTimer({ state }) {
     )
 
     if (!active || !state.timerRunning || !state.activeStartedAt) {
-      // Not running — show static full duration
+      // Not running — show static duration (minus any paused elapsed time)
       const mins = state.phase === 'qa'
         ? (state.qaMins || 5)
         : (state.presentMins || 5)
       const total = mins * 60
+      const paused = state.pausedElapsed || 0
       setTotalSecs(total)
-      setSecsLeft(total)
+      setSecsLeft(Math.max(0, total - paused))
       return
     }
 
@@ -58,6 +59,7 @@ export function useTimer({ state }) {
     state.phase,
     state.presentMins,
     state.qaMins,
+    state.pausedElapsed,
     // Re-sync when active speaker changes
     state.speakers
       ?.find((s) => s.status === 'present' || s.status === 'qa')?.id,
@@ -79,7 +81,7 @@ export function useTimer({ state }) {
     ? 'qa'
     : 'present'
 
-  const isExpired = secsLeft === 0 && state.timerRunning
+  const isExpired = secsLeft === 0 && totalSecs > 0 && state.timerRunning
 
   return { secsLeft, totalSecs, pct, displayTime, colorState, isExpired }
 }

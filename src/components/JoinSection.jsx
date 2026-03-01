@@ -1,11 +1,26 @@
 import { useState } from 'react'
 import styles from './JoinSection.module.css'
 
-function TimerStepper({ value, onInc, onDec }) {
+function TimerStepper({ value, onChange, onInc, onDec }) {
   return (
     <div className={styles.stepper}>
       <button className={styles.stepBtn} onClick={onDec}>−</button>
-      <div className={styles.stepVal}>{value}</div>
+      <input
+        className={styles.stepInput}
+        type="number"
+        min={1}
+        max={30}
+        value={value}
+        onChange={(e) => {
+          const v = parseInt(e.target.value, 10)
+          if (!isNaN(v)) onChange(Math.max(1, Math.min(30, v)))
+        }}
+        onBlur={(e) => {
+          const v = parseInt(e.target.value, 10)
+          if (isNaN(v) || v < 1) onChange(1)
+          else if (v > 30) onChange(30)
+        }}
+      />
       <button className={styles.stepBtn} onClick={onInc}>+</button>
     </div>
   )
@@ -42,6 +57,7 @@ export function JoinSection({ presentMins, qaMins, onJoin, onChangePresentMins, 
         <div className={styles.timerGroup}>
           <TimerStepper
             value={presentMins}
+            onChange={onChangePresentMins}
             onInc={() => onChangePresentMins(Math.min(presentMins + 1, 30))}
             onDec={() => onChangePresentMins(Math.max(presentMins - 1, 1))}
           />
@@ -52,6 +68,7 @@ export function JoinSection({ presentMins, qaMins, onJoin, onChangePresentMins, 
         <div className={styles.timerGroup}>
           <TimerStepper
             value={qaMins}
+            onChange={onChangeQaMins}
             onInc={() => onChangeQaMins(Math.min(qaMins + 1, 30))}
             onDec={() => onChangeQaMins(Math.max(qaMins - 1, 1))}
           />

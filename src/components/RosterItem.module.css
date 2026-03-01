@@ -28,6 +28,32 @@
   min-width: 0;
 }
 
+.dragHandle {
+  cursor: grab;
+  color: var(--text-dim);
+  font-size: 14px;
+  user-select: none;
+  opacity: 0.4;
+  transition: opacity 0.15s, color 0.15s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.dragHandle:hover {
+  opacity: 1;
+  color: var(--amber);
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.dragDisabled {
+  opacity: 0.15;
+  cursor: default;
+  pointer-events: none;
+}
+
 .num {
   font-family: 'Orbitron', monospace;
   font-size: 10px;

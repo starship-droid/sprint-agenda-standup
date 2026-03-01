@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useTimer } from '../hooks/useTimer'
 import styles from './TimerPanel.module.css'
 
-export function TimerPanel({ state, onStart, onNextPhase, onDone, onExpired }) {
+export function TimerPanel({ state, onStart, onPause, onNextPhase, onDone, onExpired }) {
   const active = state.speakers?.find(
     (s) => s.status === 'present' || s.status === 'qa'
   )
@@ -82,22 +82,22 @@ export function TimerPanel({ state, onStart, onNextPhase, onDone, onExpired }) {
 
       {/* Controls */}
       <div className={styles.controls}>
-        {!isRunning && phase === 'present' && (
-          <>
-            <button className="btn btn-amber" onClick={onStart}>▶ START PRESENT</button>
-            <button className="btn btn-ghost" onClick={onNextPhase}>→ SKIP TO Q&amp;A</button>
-          </>
+        {isRunning && (
+          <button className="btn btn-ghost" onClick={onPause}>⏸ PAUSE</button>
         )}
-        {!isRunning && phase === 'qa' && (
-          <>
-            <button className="btn btn-blue" onClick={onStart}>▶ START Q&amp;A</button>
-            <button className="btn btn-green" onClick={onDone}>✓ DONE</button>
-          </>
+        {!isRunning && (state.pausedElapsed > 0) && (
+          <button className="btn btn-amber" onClick={onStart}>▶ RESUME</button>
         )}
-        {isRunning && phase === 'present' && (
-          <button className="btn btn-blue" onClick={onNextPhase}>→ END PRESENT / START Q&amp;A</button>
+        {!isRunning && !(state.pausedElapsed > 0) && phase === 'present' && (
+          <button className="btn btn-amber" onClick={onStart}>▶ START PRESENT</button>
         )}
-        {isRunning && phase === 'qa' && (
+        {!isRunning && !(state.pausedElapsed > 0) && phase === 'qa' && (
+          <button className="btn btn-blue" onClick={onStart}>▶ START Q&amp;A</button>
+        )}
+        {phase === 'present' && (
+          <button className="btn btn-blue" onClick={onNextPhase}>→ {isRunning ? 'END PRESENT / START' : 'SKIP TO'} Q&amp;A</button>
+        )}
+        {phase === 'qa' && (
           <button className="btn btn-green" onClick={onDone}>✓ DONE</button>
         )}
       </div>

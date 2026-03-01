@@ -1,24 +1,23 @@
 .section {
   background: var(--surface);
   border: 1px solid var(--border);
-  padding: 20px 24px;
+  padding: 28px 24px 20px;
   margin-bottom: 28px;
   position: relative;
-  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
 }
 
 .label {
   position: absolute;
-  top: 10px;
+  top: -1px;
   left: 20px;
   font-family: 'Share Tech Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.3em;
   color: var(--amber);
   background: var(--surface);
-  padding: 2px 8px 2px 8px;
+  padding: 2px 10px;
+  border: 1px solid var(--border);
   transform: translateY(-50%);
-  line-height: 1.2;
 }
 
 .joinRow {
@@ -96,7 +95,7 @@
   background: var(--amber-glow);
 }
 
-.stepVal {
+.stepInput {
   width: 44px;
   text-align: center;
   font-family: 'Orbitron', monospace;
@@ -105,8 +104,18 @@
   background: var(--bg);
   height: 28px;
   line-height: 28px;
+  border: none;
   border-left: 1px solid var(--border);
   border-right: 1px solid var(--border);
+  outline: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.stepInput::-webkit-outer-spin-button,
+.stepInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .sep {

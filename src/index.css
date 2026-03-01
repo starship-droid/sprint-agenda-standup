@@ -80,13 +80,7 @@ body::before {
 }
 
 /* Grid background */
-b
-
-[data-theme="light"] body::after {
-  background-image:
-    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
-}ody::after {
+body::after {
   content: '';
   position: fixed;
   inset: 0;
@@ -96,6 +90,12 @@ b
   background-size: 40px 40px;
   pointer-events: none;
   z-index: 0;
+}
+
+[data-theme="light"] body::after {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
 }
 
 /* ── BUTTONS ── */
@@ -142,6 +142,9 @@ b
 
 .btn-green { background: var(--green); color: #000; }
 .btn-green:hover { box-shadow: 0 0 20px var(--green-glow); }
+
+[data-theme="light"] .btn-blue { color: #fff; }
+[data-theme="light"] .btn-green { color: #fff; }
 
 /* ── ICON BUTTONS ── */
 .icon-btn {
