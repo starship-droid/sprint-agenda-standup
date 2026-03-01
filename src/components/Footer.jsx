@@ -1,6 +1,6 @@
 import styles from './Footer.module.css'
 
-const VERSION = 'v2.0'
+const VERSION = 'v2.3'
 
 export function Footer({ isConnected, isConnecting }) {
   const dotClass = isConnecting

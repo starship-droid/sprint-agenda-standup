@@ -6,6 +6,7 @@ import { Header } from './components/Header'
 import { JoinSection } from './components/JoinSection'
 import { TimerPanel } from './components/TimerPanel'
 import { RosterItem } from './components/RosterItem'
+import { SharedNotes } from './components/SharedNotes'
 import { Footer } from './components/Footer'
 import './index.css'
 import styles from './App.module.css'
@@ -27,6 +28,7 @@ export default function App() {
   const [ready, setReady]           = useState(false)
   const { message: toastMsg, visible: toastVisible, showToast } = useToast()
   const { theme, toggleTheme } = useTheme()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // We use a ref to publish so we always have the latest publish fn
   const publishRef = useRef(null)
@@ -241,90 +243,110 @@ export default function App() {
   }
 
   return (
-    <div className={styles.app}>
-      <Header
-        speakerCount={state.speakers.length}
-        remaining={waiting.length + (active ? 1 : 0)}
-        isConnected={isConnected}
-        isConnecting={isConnecting}
-        theme={theme}
-        onThemeToggle={toggleTheme}
-      />
+    <div className={styles.shell}>
+      {/* Desktop sidebar */}
+      <aside className={`${styles.sidebar} ${sidebarOpen ? '' : styles.sidebarCollapsed}`}>
+        <SharedNotes sidebarMode />
+        <button
+          className={styles.sidebarTab}
+          onClick={() => setSidebarOpen((o) => !o)}
+          title={sidebarOpen ? 'Collapse notes' : 'Expand notes'}
+        >
+          <span className={styles.sidebarTabIcon}>{sidebarOpen ? '◂' : '▸'}</span>
+          {!sidebarOpen && <span className={styles.sidebarTabText}>NOTES</span>}
+        </button>
+      </aside>
 
-      <JoinSection
-        presentMins={state.presentMins}
-        qaMins={state.qaMins}
-        onJoin={joinQueue}
-        onChangePresentMins={(v) => updateState((p) => ({ ...p, presentMins: v }))}
-        onChangeQaMins={(v) => updateState((p) => ({ ...p, qaMins: v }))}
-      />
-
-      {active && (
-        <TimerPanel
-          state={state}
-          onStart={startTimer}
-          onPause={pauseTimer}
-          onNextPhase={goToQA}
-          onDone={markDone}
-          onExpired={handleExpired}
+      <div className={styles.app}>
+        <Header
+          speakerCount={state.speakers.length}
+          remaining={waiting.length + (active ? 1 : 0)}
+          isConnected={isConnected}
+          isConnecting={isConnecting}
+          theme={theme}
+          onThemeToggle={toggleTheme}
         />
-      )}
 
-      {/* Roster */}
-      <div className={styles.rosterHeader}>
-        <div className={styles.rosterTitle}>// SPEAKER QUEUE</div>
-        {state.speakers.length > 0 && (
-          <button className="btn btn-ghost" style={{ fontSize: '9px', padding: '5px 12px' }} onClick={resetSession}>
-            RESET SESSION
-          </button>
+        <JoinSection
+          presentMins={state.presentMins}
+          qaMins={state.qaMins}
+          onJoin={joinQueue}
+          onChangePresentMins={(v) => updateState((p) => ({ ...p, presentMins: v }))}
+          onChangeQaMins={(v) => updateState((p) => ({ ...p, qaMins: v }))}
+        />
+
+        {active && (
+          <TimerPanel
+            state={state}
+            onStart={startTimer}
+            onPause={pauseTimer}
+            onNextPhase={goToQA}
+            onDone={markDone}
+            onExpired={handleExpired}
+          />
         )}
-      </div>
 
-      {/* Start next */}
-      {!active && waiting.length > 0 && (
-        <div className={styles.startNextArea}>
-          <button className="btn btn-amber" onClick={startNextSpeaker}>
-            {done.length === 0 ? '▶ START SESSION' : '▶ START NEXT SPEAKER'}
-          </button>
+        {/* Roster */}
+        <div className={styles.rosterHeader}>
+          <div className={styles.rosterTitle}>// SPEAKER QUEUE</div>
+          {state.speakers.length > 0 && (
+            <button className="btn btn-ghost" style={{ fontSize: '9px', padding: '5px 12px' }} onClick={resetSession}>
+              RESET SESSION
+            </button>
+          )}
         </div>
-      )}
 
-      <div className={styles.rosterList}>
-        {state.speakers.length === 0 ? (
-          <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>⚡</div>
-            <p>NO SPEAKERS QUEUED<br />ENTER YOUR NAME ABOVE TO JOIN</p>
+        {/* Start next */}
+        {!active && waiting.length > 0 && (
+          <div className={styles.startNextArea}>
+            <button className="btn btn-amber" onClick={startNextSpeaker}>
+              {done.length === 0 ? '▶ START SESSION' : '▶ START NEXT SPEAKER'}
+            </button>
           </div>
-        ) : (
-          state.speakers.map((s, i) => (
-            <RosterItem
-              key={s.id}
-              speaker={s}
-              index={i}
-              total={state.speakers.length}
-              onDelete={deleteSpeaker}
-              onMove={moveSpeaker}
-              onRename={renameSpeaker}
-              onDragStart={handleDragStart}
-              onDragEnter={handleDragEnter}
-              onDragEnd={handleDragEnd}
-            />
-          ))
         )}
-      </div>
 
-      {/* Session complete */}
-      {allDone && (
-        <div className={styles.sessionComplete}>
-          <h2>SESSION COMPLETE</h2>
-          <p>ALL SPEAKERS DONE // SHIP IT</p>
+        <div className={styles.rosterList}>
+          {state.speakers.length === 0 ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>⚡</div>
+              <p>NO SPEAKERS QUEUED<br />ENTER YOUR NAME ABOVE TO JOIN</p>
+            </div>
+          ) : (
+            state.speakers.map((s, i) => (
+              <RosterItem
+                key={s.id}
+                speaker={s}
+                index={i}
+                total={state.speakers.length}
+                onDelete={deleteSpeaker}
+                onMove={moveSpeaker}
+                onRename={renameSpeaker}
+                onDragStart={handleDragStart}
+                onDragEnter={handleDragEnter}
+                onDragEnd={handleDragEnd}
+              />
+            ))
+          )}
         </div>
-      )}
 
-      <Footer isConnected={isConnected} isConnecting={isConnecting} />
+        {/* Mobile shared notes (collapsible) */}
+        <div className={styles.mobileNotes}>
+          <SharedNotes />
+        </div>
 
-      {/* Toast */}
-      <div className={`toast ${toastVisible ? 'show' : ''}`}>{toastMsg}</div>
+        {/* Session complete */}
+        {allDone && (
+          <div className={styles.sessionComplete}>
+            <h2>SESSION COMPLETE</h2>
+            <p>ALL SPEAKERS DONE // SHIP IT</p>
+          </div>
+        )}
+
+        <Footer isConnected={isConnected} isConnecting={isConnecting} />
+
+        {/* Toast */}
+        <div className={`toast ${toastVisible ? 'show' : ''}`}>{toastMsg}</div>
+      </div>
     </div>
   )
 }

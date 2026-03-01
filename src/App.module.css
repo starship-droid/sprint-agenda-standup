@@ -1,9 +1,122 @@
+/* ── Two-column shell (desktop) ── */
+.shell {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  display: none;
+}
+
+.mobileNotes {
+  display: block;
+}
+
+/* Desktop: sidebar on left, main on right */
+@media (min-width: 1100px) {
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 340px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: visible;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    transition: width 0.25s ease;
+  }
+
+  .sidebarCollapsed {
+    width: 38px;
+  }
+
+  .sidebarCollapsed > *:not(.sidebarTab) {
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+    width: 0;
+  }
+
+  .mobileNotes {
+    display: none;
+  }
+}
+
+@media (min-width: 1300px) {
+  .sidebar {
+    width: 400px;
+  }
+  .sidebarCollapsed {
+    width: 38px;
+  }
+}
+
+/* Sidebar tab button */
+.sidebarTab {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .sidebarTab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    position: absolute;
+    top: 50%;
+    right: -18px;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 72px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: none;
+    border-radius: 0 6px 6px 0;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.15s;
+    padding: 0;
+    flex-direction: column;
+  }
+
+  .sidebarTab:hover {
+    background: var(--amber-glow);
+    border-color: var(--amber);
+  }
+
+  .sidebarTabIcon {
+    font-size: 11px;
+    color: var(--amber);
+    line-height: 1;
+  }
+
+  .sidebarTabText {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    color: var(--amber);
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    margin-top: 4px;
+  }
+
+  .sidebarCollapsed .sidebarTab {
+    height: 100px;
+  }
+}
+
 .app {
   position: relative;
   z-index: 1;
   max-width: 880px;
   margin: 0 auto;
   padding: 32px 24px 80px;
+  flex: 1;
+  min-width: 0;
 }
 
 .rosterHeader {

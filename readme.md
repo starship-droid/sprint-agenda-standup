@@ -16,6 +16,7 @@ A real-time agenda timer for standups, retros, planning sessions — anything wh
 - **Auto-advance** — when a speaker finishes Q&A, the next speaker is loaded automatically
 - **Drag-and-drop reorder** — grab the ⠿ handle to drag speakers into a new order
 - **Editable timer values** — type a number directly or use +/− steppers (1–30 min)
+- **Shared notes** — collapsible Etherpad-style notepad synced in real-time across all devices, with line numbers and a status bar
 - **Breakout room alert** — if either timer runs out, a ⚠ Breakout Room warning is added to that speaker's name
 - **Configurable timers** — set Present and Q&A duration independently (1–30 min each, default 5 min)
 - **Queue management** — hover any waiting speaker to reorder (↑↓), edit their name (✎), or remove them (✕)

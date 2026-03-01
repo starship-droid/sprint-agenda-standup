@@ -1,0 +1,208 @@
+/* ── Panel ── */
+.panel {
+  margin-top: 28px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  position: relative;
+}
+
+.sidebarPanel {
+  margin: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  transition: opacity 0.2s;
+}
+
+/* ── Toggle (mobile / collapsed) ── */
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--amber);
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.toggle:hover {
+  background: var(--amber-glow);
+}
+
+.toggleIcon {
+  font-size: 12px;
+  width: 14px;
+  flex-shrink: 0;
+}
+
+.toggleLabel {
+  font-weight: 700;
+}
+
+.toggleHint {
+  color: var(--text-dim);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+}
+
+/* ── Sidebar header (desktop) ── */
+.sidebarHeader {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.sidebarTitle {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: var(--amber);
+}
+
+/* ── Editor wrapper ── */
+.editorWrap {
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.sidebarPanel .editorWrap {
+  border-top: none;
+}
+
+/* ── Toolbar ── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.toolBtn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  transition: all 0.12s;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.toolBtn:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: var(--amber-glow);
+}
+
+.toolBtn:active {
+  transform: scale(0.93);
+}
+
+/* Export buttons are wider */
+.toolbarRight .toolBtn {
+  width: auto;
+  padding: 0 7px;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
+
+.toolDanger:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: var(--red-glow);
+}
+
+.toolSep {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  margin: 0 3px;
+  flex-shrink: 0;
+}
+
+/* ── Rich text editor ── */
+.editor {
+  flex: 1;
+  padding: 14px 18px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  outline: none;
+  overflow-y: auto;
+  min-height: 240px;
+  max-height: 500px;
+  cursor: text;
+}
+
+.sidebarPanel .editor {
+  min-height: 0;
+  max-height: none;
+  flex: 1;
+}
+
+/* Placeholder via :empty pseudo */
+.editor:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-dim);
+  font-style: italic;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.editor:focus {
+  box-shadow: inset 0 0 0 1px var(--amber-glow);
+}
+
+/* Style lists inside the editor */
+.editor ul,
+.editor ol {
+  margin: 4px 0;
+  padding-left: 24px;
+}
+
+.editor li {
+  margin-bottom: 2px;
+}
+
+.editor b, .editor strong {
+  font-weight: 700;
+}
