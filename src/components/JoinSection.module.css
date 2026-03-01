@@ -9,15 +9,16 @@
 
 .label {
   position: absolute;
-  top: -1px;
+  top: 10px;
   left: 20px;
   font-family: 'Share Tech Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.3em;
   color: var(--amber);
   background: var(--surface);
-  padding: 0 8px;
+  padding: 2px 8px 2px 8px;
   transform: translateY(-50%);
+  line-height: 1.2;
 }
 
 .joinRow {
