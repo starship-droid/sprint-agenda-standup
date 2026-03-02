@@ -222,3 +222,197 @@
 .editor b, .editor strong {
   font-weight: 700;
 }
+
+/* ── Mode tabs ── */
+.modeTabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.modeTab {
+  flex: 1;
+  padding: 9px 12px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.modeTab:hover {
+  color: var(--amber);
+  background: var(--amber-glow);
+}
+
+.modeTabActive {
+  color: var(--amber);
+  border-bottom-color: var(--amber);
+}
+
+/* ── BBB Setup ── */
+.bbbSetup {
+  padding: 20px 18px;
+}
+
+.bbbContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.bbbTokenSetup {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.bbbStep {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.bbbStepNum {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--amber-glow);
+  border: 1px solid var(--amber);
+  color: var(--amber);
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.bbbStepContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.bbbStepTitle {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--amber);
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.bbbStepHint {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.bbbStepHint code {
+  font-size: 10px;
+  color: var(--text);
+  background: var(--surface2);
+  padding: 1px 5px;
+  border: 1px solid var(--border);
+}
+
+.bbbStepHint strong {
+  color: var(--amber);
+}
+
+.bbbInputRow {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.bbbInput {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 0;
+}
+
+.bbbInput::placeholder {
+  color: var(--text-dim);
+  font-style: italic;
+  opacity: 0.6;
+}
+
+.bbbInput:focus {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 2px var(--amber-glow);
+}
+
+/* ── BBB iframe ── */
+.bbbIframeWrap {
+  flex: 1;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.bbbIframe {
+  flex: 1;
+  width: 100%;
+  min-height: 300px;
+  border: none;
+  background: #fff;
+}
+
+.sidebarPanel .bbbIframeWrap {
+  min-height: 0;
+  flex: 1;
+}
+
+.sidebarPanel .bbbIframe {
+  min-height: 0;
+  flex: 1;
+}
+
+/* ── BBB footer ── */
+.bbbFooter {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  justify-content: flex-end;
+}
+
+.bbbFooterBtn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.bbbFooterBtn:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+.bbbFooterDanger:hover {
+  border-color: var(--red);
+  color: var(--red);
+}

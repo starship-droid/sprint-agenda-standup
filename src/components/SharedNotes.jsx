@@ -1,6 +1,10 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { useAblyNotes } from '../hooks/useAblyNotes'
 import styles from './SharedNotes.module.css'
+
+const LS_MODE_KEY  = 'll-notes-mode'
+const LS_TOKEN_KEY = 'll-bbb-token'
+const LS_BBBURL_KEY = 'll-bbb-url'
 
 const TOOLBAR = [
   { cmd: 'bold',          icon: 'B',  title: 'Bold',           style: { fontWeight: 700 } },
@@ -30,13 +34,31 @@ function downloadFile(filename, content, mime) {
   URL.revokeObjectURL(url)
 }
 
-export function SharedNotes({ sidebarMode, onRemoteActivity, hasUnread: externalUnread }) {
-  const [open, setOpen]         = useState(false)
-  const [mobileUnread, setMobileUnread] = useState(false)
-  const editorRef               = useRef(null)
-  const localEditRef            = useRef(false)
-  const localEditTimerRef       = useRef(null)
+/** Strip &sessionToken=... from a BBB URL */
+function stripSessionToken(url) {
+  return url.replace(/[&?]sessionToken=[^&]*/gi, '')
+}
 
+export function SharedNotes({ sidebarMode, onRemoteActivity }) {
+  const [open, setOpen]             = useState(false)
+  const [mobileUnread, setMobileUnread] = useState(false)
+  const editorRef                   = useRef(null)
+  const localEditRef                = useRef(false)
+  const localEditTimerRef           = useRef(null)
+
+  // Mode: 'builtin' | 'bbb'
+  const [mode, setMode]             = useState(() => localStorage.getItem(LS_MODE_KEY) || 'builtin')
+  const [bbbBaseUrl, setBbbBaseUrl] = useState(() => localStorage.getItem(LS_BBBURL_KEY) || '')
+  const [bbbToken, setBbbToken]     = useState(() => localStorage.getItem(LS_TOKEN_KEY) || '')
+  const [bbbUrlInput, setBbbUrlInput] = useState('')
+  const [bbbConnected, setBbbConnected] = useState(false)
+
+  // Persist mode & token to localStorage
+  useEffect(() => { localStorage.setItem(LS_MODE_KEY, mode) }, [mode])
+  useEffect(() => { localStorage.setItem(LS_TOKEN_KEY, bbbToken) }, [bbbToken])
+  useEffect(() => { localStorage.setItem(LS_BBBURL_KEY, bbbBaseUrl) }, [bbbBaseUrl])
+
+  // Built-in notes
   const markLocalEdit = useCallback(() => {
     localEditRef.current = true
     if (localEditTimerRef.current) clearTimeout(localEditTimerRef.current)
@@ -49,13 +71,28 @@ export function SharedNotes({ sidebarMode, onRemoteActivity, hasUnread: external
     if (localEditRef.current) return
     if (editorRef.current && editorRef.current.innerHTML !== remote) {
       editorRef.current.innerHTML = remote
-      // Notify parent (desktop sidebar) or self (mobile) of remote activity
       onRemoteActivity?.()
       setMobileUnread(true)
     }
   }, [onRemoteActivity])
 
-  const { publish } = useAblyNotes({ onNotesUpdate: handleRemoteNotes })
+  const handleRemoteBbbUrl = useCallback((remote) => {
+    if (remote && typeof remote === 'object') {
+      if (remote.url) {
+        setBbbBaseUrl(remote.url)
+        setBbbConnected(true)
+      }
+      if (remote.url === '') {
+        setBbbBaseUrl('')
+        setBbbConnected(false)
+      }
+    }
+  }, [])
+
+  const { publish, publishBbbUrl } = useAblyNotes({
+    onNotesUpdate: handleRemoteNotes,
+    onBbbUrlUpdate: handleRemoteBbbUrl,
+  })
 
   const handleInput = useCallback(() => {
     if (!editorRef.current) return
@@ -88,11 +125,190 @@ export function SharedNotes({ sidebarMode, onRemoteActivity, hasUnread: external
     }
   }, [publish])
 
+  // BBB handlers
+  const handleSetBbbUrl = useCallback(() => {
+    const cleaned = stripSessionToken(bbbUrlInput.trim())
+    if (!cleaned) return
+    setBbbBaseUrl(cleaned)
+    setBbbConnected(true)
+    publishBbbUrl({ url: cleaned })
+    setBbbUrlInput('')
+  }, [bbbUrlInput, publishBbbUrl])
+
+  const handleDisconnectBbb = useCallback(() => {
+    if (!confirm('Disconnect BBB shared notes for all users?')) return
+    setBbbBaseUrl('')
+    setBbbConnected(false)
+    publishBbbUrl({ url: '' })
+  }, [publishBbbUrl])
+
+  const handleBbbUrlPaste = useCallback((e) => {
+    // Auto-clean on paste
+    setTimeout(() => {
+      setBbbUrlInput((v) => stripSessionToken(v))
+    }, 0)
+  }, [])
+
+  // Computed BBB iframe URL
+  const bbbIframeUrl = bbbBaseUrl && bbbToken
+    ? `${bbbBaseUrl}&sessionToken=${bbbToken}`
+    : null
+
   const panelClass = sidebarMode
     ? `${styles.panel} ${styles.sidebarPanel}`
     : styles.panel
 
   const isOpen = open || sidebarMode
+
+  // ── Mode tabs ──
+  const renderModeTabs = () => (
+    <div className={styles.modeTabs}>
+      <button
+        className={`${styles.modeTab} ${mode === 'builtin' ? styles.modeTabActive : ''}`}
+        onClick={() => setMode('builtin')}
+      >
+        BUILT-IN
+      </button>
+      <button
+        className={`${styles.modeTab} ${mode === 'bbb' ? styles.modeTabActive : ''}`}
+        onClick={() => setMode('bbb')}
+      >
+        BBB ETHERPAD
+      </button>
+    </div>
+  )
+
+  // ── BBB setup / iframe ──
+  const renderBbbContent = () => {
+    // No base URL set yet — show setup form
+    if (!bbbBaseUrl) {
+      return (
+        <div className={styles.bbbSetup}>
+          <div className={styles.bbbStep}>
+            <div className={styles.bbbStepNum}>1</div>
+            <div className={styles.bbbStepContent}>
+              <div className={styles.bbbStepTitle}>PASTE BBB SHARED NOTES URL</div>
+              <div className={styles.bbbStepHint}>
+                In BBB, open Shared Notes → right-click the content area → &quot;Open frame in new tab&quot; → copy that URL.
+                The sessionToken will be auto-removed.
+              </div>
+              <div className={styles.bbbInputRow}>
+                <input
+                  className={styles.bbbInput}
+                  type="text"
+                  placeholder="https://your-bbb.com/pad/auth_session?padName=..."
+                  value={bbbUrlInput}
+                  onChange={(e) => setBbbUrlInput(e.target.value)}
+                  onPaste={handleBbbUrlPaste}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSetBbbUrl()}
+                />
+                <button className="btn btn-amber" style={{ fontSize: '9px', padding: '8px 14px' }} onClick={handleSetBbbUrl}>
+                  SET URL
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Base URL set — show token input (if needed) and iframe
+    return (
+      <div className={styles.bbbContent}>
+        {!bbbToken && (
+          <div className={styles.bbbTokenSetup}>
+            <div className={styles.bbbStep}>
+              <div className={styles.bbbStepNum}>2</div>
+              <div className={styles.bbbStepContent}>
+                <div className={styles.bbbStepTitle}>ENTER YOUR SESSION TOKEN</div>
+                <div className={styles.bbbStepHint}>
+                  Look at your BBB browser URL — copy the text after <strong>?sessionToken=</strong>
+                  <br />
+                  e.g. from <code>https://your-bbb.com/html5client/?sessionToken=<strong>abc123xyz</strong></code> copy <strong>abc123xyz</strong>
+                </div>
+                <div className={styles.bbbInputRow}>
+                  <input
+                    className={styles.bbbInput}
+                    type="text"
+                    placeholder="paste your sessionToken here..."
+                    value={bbbToken}
+                    onChange={(e) => setBbbToken(e.target.value.trim())}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {bbbIframeUrl && (
+          <div className={styles.bbbIframeWrap}>
+            <iframe
+              className={styles.bbbIframe}
+              src={bbbIframeUrl}
+              title="BBB Shared Notes"
+              sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+            />
+          </div>
+        )}
+
+        <div className={styles.bbbFooter}>
+          <button
+            className={styles.bbbFooterBtn}
+            onClick={() => { setBbbToken(''); localStorage.removeItem(LS_TOKEN_KEY) }}
+            title="Change your session token"
+          >
+            ↻ CHANGE TOKEN
+          </button>
+          <button
+            className={`${styles.bbbFooterBtn} ${styles.bbbFooterDanger}`}
+            onClick={handleDisconnectBbb}
+            title="Disconnect BBB notes for all users"
+          >
+            ✕ DISCONNECT BBB
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Built-in editor ──
+  const renderBuiltinContent = () => (
+    <div className={styles.editorWrap}>
+      <div className={styles.toolbar}>
+        <div className={styles.toolbarLeft}>
+          {TOOLBAR.map((item, i) =>
+            item === '|' ? (
+              <div key={i} className={styles.toolSep} />
+            ) : (
+              <button
+                key={item.cmd}
+                className={styles.toolBtn}
+                title={item.title}
+                style={item.style || {}}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => execCmd(item.cmd)}
+              >
+                {item.icon}
+              </button>
+            )
+          )}
+        </div>
+        <div className={styles.toolbarRight}>
+          <button className={styles.toolBtn} title="Export as text" onMouseDown={(e) => e.preventDefault()} onClick={handleExportText}>↓TXT</button>
+          <button className={styles.toolBtn} title="Export as HTML" onMouseDown={(e) => e.preventDefault()} onClick={handleExportHtml}>↓HTML</button>
+          <button className={`${styles.toolBtn} ${styles.toolDanger}`} title="Clear all notes" onMouseDown={(e) => e.preventDefault()} onClick={handleClearAll}>✕</button>
+        </div>
+      </div>
+      <div
+        ref={editorRef}
+        className={styles.editor}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={handleInput}
+        data-placeholder="Type shared notes here... everyone sees updates in real-time."
+      />
+    </div>
+  )
 
   return (
     <div className={panelClass}>
@@ -114,65 +330,10 @@ export function SharedNotes({ sidebarMode, onRemoteActivity, hasUnread: external
       )}
 
       {isOpen && (
-        <div className={styles.editorWrap}>
-          {/* Toolbar */}
-          <div className={styles.toolbar}>
-            <div className={styles.toolbarLeft}>
-              {TOOLBAR.map((item, i) =>
-                item === '|' ? (
-                  <div key={i} className={styles.toolSep} />
-                ) : (
-                  <button
-                    key={item.cmd}
-                    className={styles.toolBtn}
-                    title={item.title}
-                    style={item.style || {}}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => execCmd(item.cmd)}
-                  >
-                    {item.icon}
-                  </button>
-                )
-              )}
-            </div>
-            <div className={styles.toolbarRight}>
-              <button
-                className={styles.toolBtn}
-                title="Export as text"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={handleExportText}
-              >
-                ↓TXT
-              </button>
-              <button
-                className={styles.toolBtn}
-                title="Export as HTML"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={handleExportHtml}
-              >
-                ↓HTML
-              </button>
-              <button
-                className={`${styles.toolBtn} ${styles.toolDanger}`}
-                title="Clear all notes"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={handleClearAll}
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-
-          {/* Rich text editable area */}
-          <div
-            ref={editorRef}
-            className={styles.editor}
-            contentEditable
-            suppressContentEditableWarning
-            onInput={handleInput}
-            data-placeholder="Type shared notes here... everyone sees updates in real-time."
-          />
-        </div>
+        <>
+          {renderModeTabs()}
+          {mode === 'builtin' ? renderBuiltinContent() : renderBbbContent()}
+        </>
       )}
     </div>
   )

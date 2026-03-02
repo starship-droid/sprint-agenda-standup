@@ -7,7 +7,7 @@ const CHANNEL_NAME = 'lightning-ladder-notes__' +
     .replace(/_+/g, '_')
     .replace(/^_|_$/g, '')
 
-export function useAblyNotes({ onNotesUpdate }) {
+export function useAblyNotes({ onNotesUpdate, onBbbUrlUpdate }) {
   const clientRef  = useRef(null)
   const channelRef = useRef(null)
   const isMounted  = useRef(true)
@@ -39,6 +39,12 @@ export function useAblyNotes({ onNotesUpdate }) {
       }
     })
 
+    channel.subscribe('bbb-url', (message) => {
+      if (isMounted.current && message.data != null) {
+        onBbbUrlUpdate?.(message.data)
+      }
+    })
+
     return () => {
       isMounted.current = false
       if (timerRef.current) clearTimeout(timerRef.current)
@@ -55,5 +61,9 @@ export function useAblyNotes({ onNotesUpdate }) {
     }, 300)
   }, [])
 
-  return { publish }
+  const publishBbbUrl = useCallback((data) => {
+    channelRef.current?.publish('bbb-url', data)
+  }, [])
+
+  return { publish, publishBbbUrl }
 }
