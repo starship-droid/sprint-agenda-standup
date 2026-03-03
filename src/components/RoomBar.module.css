@@ -1,26 +1,32 @@
+/* ── Room Bar (two-row header) ── */
 .bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin-bottom: 18px;
+}
+
+/* Top row: back button, room title, share buttons & theme */
+.topRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.left {
-  display: flex;
-  align-items: center;
+  padding: 10px 16px;
   gap: 12px;
   flex-wrap: wrap;
 }
 
-.right {
+.topLeft {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 12px;
+  min-width: 0;
+}
+
+.topRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .backBtn {
@@ -36,6 +42,7 @@
   padding: 5px 12px;
   cursor: pointer;
   transition: all 0.15s;
+  flex-shrink: 0;
 }
 
 .backBtn svg {
@@ -54,75 +61,39 @@
 
 .sep {
   width: 1px;
-  height: 20px;
+  height: 22px;
   background: var(--border);
   flex-shrink: 0;
 }
 
-.roomInfo {
+/* Room title (prominent) */
+.roomTitle {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
-.label {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.2em;
-  color: var(--text-dim);
+.bolt {
+  font-size: 18px;
+  line-height: 1;
+  filter: drop-shadow(0 0 6px rgba(245, 166, 35, 0.5));
+  flex-shrink: 0;
 }
 
-.code {
+.roomNameBig {
   font-family: 'Orbitron', monospace;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  color: var(--amber);
-}
-
-.roomName {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  color: var(--text);
-  font-weight: 500;
-  padding-left: 8px;
-  border-left: 1px solid var(--border);
-}
-
-.presence {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.presenceDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 6px var(--green);
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-.presenceCount {
-  font-family: 'Orbitron', monospace;
-  font-size: 12px;
+  font-size: clamp(14px, 3vw, 20px);
   font-weight: 700;
   color: var(--text);
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.presenceLabel {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.15em;
-  color: var(--text-dim);
-}
-
+/* Share buttons */
 .shareBtn {
   display: flex;
   align-items: center;
@@ -161,14 +132,128 @@
   stroke: var(--green);
 }
 
+/* Bottom row: status strip */
+.statusStrip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.statusLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.statusRight {
+  display: flex;
+  align-items: center;
+}
+
+.statusItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+}
+
+.statusSep {
+  width: 1px;
+  height: 12px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.dotLive {
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse 1.5s infinite;
+}
+
+.dotConnecting {
+  background: var(--amber);
+  box-shadow: 0 0 6px var(--amber);
+  animation: pulse 1.5s infinite;
+}
+
+.dotOffline {
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red);
+}
+
+.presenceDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse 1.5s infinite;
+  display: inline-block;
+}
+
+.statusCode {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--amber);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Remaining badge */
+.remainingBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.remainingCount {
+  font-family: 'Orbitron', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--amber);
+  line-height: 1;
+}
+
+.remainingLabel {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+}
+
+/* ── Responsive ── */
 @media (max-width: 600px) {
-  .bar {
+  .topRow {
     flex-direction: column;
     align-items: flex-start;
+    gap: 8px;
   }
-  
-  .right {
+
+  .topRight {
     width: 100%;
     justify-content: flex-end;
+  }
+
+  .roomNameBig {
+    font-size: 14px;
   }
 }

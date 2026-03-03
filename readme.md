@@ -39,6 +39,8 @@ A real-time, multi-room agenda timer for standups, retros, planning sessions —
 - **Unread notification** — pulsing dot when someone edits notes while your panel is collapsed
 
 ### Polish
+- **Compact room layout** — no redundant title in-room; timer and controls are visible without scrolling
+- **Unified room bar** — room name, connection status, member count, remaining speakers, share buttons, and theme toggle all in one header
 - **Dark / Light theme** — toggle with system preference detection
 - **Sync status** — footer shows live connection state and app version
 - **Consistent SVG stroke icons** throughout (no emoji mix)
@@ -150,8 +152,8 @@ src/
   components/
     HomeScreen.jsx        # Lobby — unified smart input (join/create), public room list
     Room.jsx              # Full room view (queue, timer, notes)
-    RoomBar.jsx           # Room header bar (code, name, share buttons, presence)
-    Header.jsx            # Logo, connection status, queue count
+    RoomBar.jsx           # Room header — name, status, presence, share, remaining, theme
+    Header.jsx            # Lobby logo, connection status, queue count
     JoinSection.jsx       # Name input + timer config
     TimerPanel.jsx        # Active speaker timer + phase controls
     RosterItem.jsx        # Individual speaker row (edit/move/delete)
