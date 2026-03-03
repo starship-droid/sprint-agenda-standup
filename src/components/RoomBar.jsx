@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { ThemeToggle } from './ThemeToggle'
 import styles from './RoomBar.module.css'
 
 /* ── SVG Icons (stroke style, matching ThemeToggle) ── */
@@ -26,7 +27,7 @@ const IconCheck = () => (
   </svg>
 )
 
-export function RoomBar({ roomId, roomUrl, roomName, memberCount, onLeave }) {
+export function RoomBar({ roomId, roomUrl, roomName, memberCount, remaining, isConnected, isConnecting, theme, onThemeToggle, onLeave }) {
   const [copied, setCopied] = useState(null) // 'link' | 'code' | null
 
   const copyToClipboard = useCallback((text, type) => {
@@ -46,40 +47,82 @@ export function RoomBar({ roomId, roomUrl, roomName, memberCount, onLeave }) {
     })
   }, [])
 
+  const dotClass = isConnecting
+    ? styles.dotConnecting
+    : isConnected
+    ? styles.dotLive
+    : styles.dotOffline
+
+  const statusText = isConnecting
+    ? 'CONNECTING'
+    : isConnected
+    ? 'LIVE'
+    : 'OFFLINE'
+
   return (
     <div className={styles.bar}>
-      <div className={styles.left}>
-        <button className={styles.backBtn} onClick={onLeave} title="Back to lobby">
-          <IconArrowLeft /> LOBBY
-        </button>
-        <div className={styles.sep} />
-        <div className={styles.roomInfo}>
-          <span className={styles.label}>ROOM</span>
-          <span className={styles.code}>{roomId}</span>
-          {roomName && <span className={styles.roomName}>{roomName}</span>}
+      {/* Top row: back button, room title, share & theme */}
+      <div className={styles.topRow}>
+        <div className={styles.topLeft}>
+          <button className={styles.backBtn} onClick={onLeave} title="Back to lobby">
+            <IconArrowLeft /> LOBBY
+          </button>
+          <div className={styles.sep} />
+          <div className={styles.roomTitle}>
+            <span className={styles.bolt}>⚡</span>
+            {roomName ? (
+              <span className={styles.roomNameBig}>{roomName}</span>
+            ) : (
+              <span className={styles.roomNameBig}>ROOM {roomId}</span>
+            )}
+          </div>
         </div>
-        <div className={styles.sep} />
-        <div className={styles.presence}>
-          <span className={styles.presenceDot} />
-          <span className={styles.presenceCount}>{memberCount}</span>
-          <span className={styles.presenceLabel}>CONNECTED</span>
+        <div className={styles.topRight}>
+          <button
+            className={`${styles.shareBtn} ${copied === 'code' ? styles.shareCopied : ''}`}
+            onClick={() => copyToClipboard(roomId, 'code')}
+            title="Copy room code"
+          >
+            {copied === 'code' ? <><IconCheck /> COPIED</> : <><IconCopy /> CODE</>}
+          </button>
+          <button
+            className={`${styles.shareBtn} ${copied === 'link' ? styles.shareCopied : ''}`}
+            onClick={() => copyToClipboard(roomUrl, 'link')}
+            title="Copy room link"
+          >
+            {copied === 'link' ? <><IconCheck /> COPIED</> : <><IconLink /> LINK</>}
+          </button>
+          <ThemeToggle theme={theme} onToggle={onThemeToggle} />
         </div>
       </div>
-      <div className={styles.right}>
-        <button
-          className={`${styles.shareBtn} ${copied === 'code' ? styles.shareCopied : ''}`}
-          onClick={() => copyToClipboard(roomId, 'code')}
-          title="Copy room code"
-        >
-          {copied === 'code' ? <><IconCheck /> COPIED</> : <><IconCopy /> CODE</>}
-        </button>
-        <button
-          className={`${styles.shareBtn} ${copied === 'link' ? styles.shareCopied : ''}`}
-          onClick={() => copyToClipboard(roomUrl, 'link')}
-          title="Copy room link"
-        >
-          {copied === 'link' ? <><IconCheck /> COPIED</> : <><IconLink /> LINK</>}
-        </button>
+
+      {/* Bottom row: status strip */}
+      <div className={styles.statusStrip}>
+        <div className={styles.statusLeft}>
+          <div className={styles.statusItem}>
+            <div className={`${styles.statusDot} ${dotClass}`} />
+            <span>{statusText}</span>
+          </div>
+          <div className={styles.statusSep} />
+          <div className={styles.statusItem}>
+            <span className={styles.presenceDot} />
+            <span>{memberCount} CONNECTED</span>
+          </div>
+          {roomName && (
+            <>
+              <div className={styles.statusSep} />
+              <div className={styles.statusItem}>
+                <span className={styles.statusCode}>CODE: {roomId}</span>
+              </div>
+            </>
+          )}
+        </div>
+        <div className={styles.statusRight}>
+          <div className={styles.remainingBadge}>
+            <span className={styles.remainingCount}>{remaining}</span>
+            <span className={styles.remainingLabel}>REMAINING</span>
+          </div>
+        </div>
       </div>
     </div>
   )

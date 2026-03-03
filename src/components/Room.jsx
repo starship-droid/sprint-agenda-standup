@@ -3,7 +3,6 @@ import { useAbly } from '../hooks/useAbly'
 import { useToast } from '../hooks/useToast'
 import { useRoomPresence } from '../hooks/useRoomPresence'
 import { useLobby } from '../hooks/useLobby'
-import { Header } from './Header'
 import { RoomBar } from './RoomBar'
 import { JoinSection } from './JoinSection'
 import { TimerPanel } from './TimerPanel'
@@ -338,29 +337,17 @@ export function Room({ roomId, roomUrl, roomConfig, theme, onThemeToggle, onLeav
       </aside>
 
       <div className={styles.app}>
-        <Header
-          speakerCount={state.speakers.length}
-          remaining={waiting.length + (active ? 1 : 0)}
-          isConnected={isConnected}
-          isConnecting={isConnecting}
-          theme={theme}
-          onThemeToggle={onThemeToggle}
-        />
-
         <RoomBar
           roomId={roomId}
           roomUrl={roomUrl}
           roomName={roomConfig?.name || ''}
           memberCount={memberCount}
+          remaining={waiting.length + (active ? 1 : 0)}
+          isConnected={isConnected}
+          isConnecting={isConnecting}
+          theme={theme}
+          onThemeToggle={onThemeToggle}
           onLeave={handleLeave}
-        />
-
-        <JoinSection
-          presentMins={state.presentMins}
-          qaMins={state.qaMins}
-          onJoin={joinQueue}
-          onChangePresentMins={(v) => updateState((p) => ({ ...p, presentMins: v }))}
-          onChangeQaMins={(v) => updateState((p) => ({ ...p, qaMins: v }))}
         />
 
         {active && (
@@ -373,6 +360,14 @@ export function Room({ roomId, roomUrl, roomConfig, theme, onThemeToggle, onLeav
             onExpired={handleExpired}
           />
         )}
+
+        <JoinSection
+          presentMins={state.presentMins}
+          qaMins={state.qaMins}
+          onJoin={joinQueue}
+          onChangePresentMins={(v) => updateState((p) => ({ ...p, presentMins: v }))}
+          onChangeQaMins={(v) => updateState((p) => ({ ...p, qaMins: v }))}
+        />
 
         {/* Roster */}
         <div className={styles.rosterHeader}>
